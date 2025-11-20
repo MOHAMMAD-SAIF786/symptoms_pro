@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Home | Symptom Checker
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<section id="home" class="home-section">
+    <div class="form-container">
+        <input type="text" id="symptoms" placeholder="Enter your symptoms here">
+        <button onclick="predictDisease()">Predict</button>
+    </div>
+</section>
+
+<section id="features" class="features-section">
+    {% if feature_infos %}
+    <h2>{{feature_infos.first.title}}</h2>
+    <div class="feature-buttons">
+        {% for feature in feature_infos %}
+        <button
+            onclick="showFeature('{{feature.feature_button}}', '{{feature.content|default:','|escapejs}}')">{{feature.feature_button}}</button>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No features found</p>
+    {% endif %}
+</section>
+
+<section id="how-it-works" class="how-it-works">
+    {% if working_infos %}
+    <h2>{{working_infos.first.title}}</h2>
+    <div class="steps">
+        {% for working in working_infos %}
+        <div class="step">
+            <h3>{{working.steps}}</h3>
+            <p>{{working.step_discription}}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <a href="#start-check" class="cta-button">Try It Free</a>
+</section>
+
+<div class="disclaimer">
+    {% if disclaimer_infos %}
+    <p><strong>Important Disclaimer:</strong>{{disclaimer_infos.first.important_disclaimer}}</p>
+    {% endif %}
+</div>
+
+<footer id="contact">
+    {% if disclaimer_infos %}
+    <p>{{disclaimer_infos.first.footer}}</p>
+    {% endif %}
+</footer>
+
+<div id="feature-popup" class="feature-popup">
+    <p id="feature-text"></p>
+    <button onclick="closePopup()">Close</button>
+</div>
+
+<div class="chat-icon" onclick="toggleChat()">
+    <img src="../static/assets/Graident Ai Robot.jpg" alt="AI-chatbot" height="50px"
+        style="overflow: hidden; border-radius: 100%;">
+</div>
+<div class="chat-box" id="chatBox">
+    <div class="chat-header">
+        <span>HealthBot</span>
+        <button class="close-btn" onclick="toggleChat()">✖</button>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-input-area">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<button class="toggle-mode" onclick="toggleMode()">Dark Mode</button>
+{% endblock %}
+
+{% block script %}
+<script>
+    function toggleMode() { document.body.classList.toggle('dark-mode'); }
+    function predictDisease() { const s = document.getElementById('symptoms').value; if (s.trim() === '') { alert('Please enter your symptoms'); return; } alert('Prediction functionality is under development.'); }
+    function showFeature(n, c) { const p = document.getElementById('feature-popup'); const t = document.getElementById('feature-text'); let m = ""; if (c && c.trim() !== '') { m = c + " feature is only for display, prediction not implemented yet."; } else { m = n + " feature is only for display, prediction not implemented yet."; } t.innerText = m; p.style.display = 'block'; setTimeout(() => { p.style.top = '20%'; }, 10); }
+    function closePopup() { const p = document.getElementById('feature-popup'); p.style.top = '-50%'; setTimeout(() => { p.style.display = 'none'; }, 500); }
+    function toggleChat() { const c = document.getElementById('chatBox'); c.style.display = c.style.display === 'flex' ? 'none' : 'flex'; }
+   function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chatBody = document.getElementById('chatBody');
+  const userText = input.value.trim();
+
+  if (!userText) return;
+
+  // User message bubble
+  const userMsg = document.createElement('div');
+  userMsg.className = 'user-message';
+  userMsg.textContent = 'You: ' + userText;
+  chatBody.appendChild(userMsg);
+  input.value = '';
+
+  // Show loading message
+  const botMsg = document.createElement('div');
+  botMsg.className = 'bot-message';
+  botMsg.innerHTML = 'Bot: <i>Thinking...</i>';
+  chatBody.appendChild(botMsg);
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  // Send message to Django
+  fetch('/health-chatbot/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ message: userText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // Format the bot's reply (render HTML)
+    botMsg.innerHTML = 'Bot: ' + data.reply;
+    chatBody.scrollTop = chatBody.scrollHeight;
+  })
+  .catch(err => {
+    botMsg.innerHTML = 'Bot: <b style="color:red;">Error occurred.</b>';
+    console.error('Error:', err);
+  });
+}
+
+
+
+</script>
+{% endblock %}

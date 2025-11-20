@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+  {% block title %}
+
+  Contact|Symptom Checker
+
+  {% endblock %}
+  
+  {% block css  %}
+  <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+  {% endblock  %}
+
+  {% block content %}
+
+    <main class="grid">
+      <section class="card">
+        <h2>Get in touch</h2>
+        <form id="contactForm" class="contact-form" method="POST">
+          {% csrf_token %}
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="number" name="age" placeholder="Age">
+          <input type="email" name="email" placeholder="Your Email" required>
+          <input type="tel" name="phone" placeholder="Phone">
+          <textarea rows="5" name="message" placeholder="Message / Details"></textarea>
+          <button class="btn" type="submit">Send Message</button>
+        </form>
+        {% if  messages %}
+         {% for message in messages %}
+         <p class="success-message">{{message}}</p>
+         {% endfor %}
+        {% endif %}
+      </section>
+
+      <aside class="card info">
+        {% for contact in contact_infos  %}
+        <h3 style="font-weight: bold;"> {{contact.title}}</h3>
+        <p><span style="font-weight: bold; font-size: 21px;">Team: </span>{{contact.team}}</p>
+        <p><span style="font-weight: bold; font-size: 21px;">Email: </span>{{contact.email}}</p>
+        <p><span style="font-weight: bold; font-size: 21px;">Phone: </span>{{contact.phone}}</p>
+        <p><span style="font-weight: bold; font-size: 21px;">Office: </span>{{contact.office}}</p>
+        <p><span style="font-weight: bold; font-size: 21px;">Working_Hr: </span>{{contact.working_hr}}</p>
+        {% endfor %}
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      {% for contact in contact_infos %}
+      <span style="font-weight: bold; font-size: 20px; color: black ;">Note:</span> {{ contact.note}}
+      {% endfor %}
+    </footer>
+  </div>
+
+  <button id="modeToggle" >dark Mode</button>
+  {% endblock  %}
+
+
+  {% block script %}
+  
+  <script>
+    const modeToggle = document.getElementById('modeToggle');
+    modeToggle.addEventListener('click', () => {
+      if (document.body.classList.contains('light')) {
+        document.body.classList.replace('light', 'dark');
+        modeToggle.textContent = 'light Mode';
+      }
+      else {
+        document.body.classList.replace('dark', 'light');
+        modeToggle.textContent = 'dark Mode';
+      }
+    }); 
+  </script>
+{% endblock %}
