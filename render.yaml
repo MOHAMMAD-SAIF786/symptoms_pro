@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: symptoms-pro
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn symptoms_pro.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: "symptoms_pro.settings"
+      - key: PYTHON_VERSION
+        value: "3.11"
